@@ -20,4 +20,4 @@ jobs:
         python-version: 3.8
     - name: RUN
       run: |
-        python GA.py 250 32 10001
+        python GA.py 250 60 20001

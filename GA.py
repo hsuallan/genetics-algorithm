@@ -52,10 +52,11 @@ def findMax(d1):
     v = list(d2.values())
     k = list(d2.keys())
     return k[v.index(max(v))]
-def selection(cfg,pop,times,wwwww):
-    all = dict(wwwww)
+def selection(cfg,pop,times,上一次結果):
+    all = dict(上一次結果)
     for index,item in enumerate(pop):
         if index in all:
+            # 已做過的跳過
             pass
         else:
             gene = geneToNumber(cfg,item)
@@ -64,20 +65,33 @@ def selection(cfg,pop,times,wwwww):
             all[index] = getfitness(x,y)
     maxIndex = findMax(all)
     father = pop[maxIndex]
-    if times%1000 == 0:
-        gene = geneToNumber(cfg,father)
-        x = gene[0]
-        y = gene[1]
-        print(times,'---->',x,y,all[maxIndex])
     return [father,all]    
 if __name__ == "__main__":
-    if sys.argv[1] == "help":
+    if  len(sys.argv) == 1 or sys.argv[1] == "help":
         print('python GA.py {{ population }} {{ genelength }} {{ generation }}')
     else:
+        最近的最好結果 = []
         cfg = cfg([-3.0,12.1],[4.1,5.8],int(sys.argv[1]),int(sys.argv[2]))
-        #selection(cfg,population(cfg))
         pop = population(cfg)
         best = [000,{}]
         for times in range(int(sys.argv[3])):
             best = selection(cfg,pop,times,best[1])
             pop.append(mutate(crossover(best[0],pop[random.randrange(0,len(pop))])))
+            #print ans
+            gene = geneToNumber(cfg,best[0])
+            x = gene[0]
+            y = gene[1]
+            ans = getfitness(x,y)
+            最近的最好結果.append(ans)
+            if len(最近的最好結果) == 1000:
+                最近的最好結果 = set(最近的最好結果)
+                if len(最近的最好結果) == 1:
+                    print("最近1000次都沒變 第",times-1000,"~",times,"的結果",'---->',x,y,ans)
+                    exit()
+                最近的最好結果 = []
+            if times%1000 == 0:
+                gene = geneToNumber(cfg,best[0])
+                x = gene[0]
+                y = gene[1]
+                ans = getfitness(x,y)
+                print(times,'---->',x,y,ans)
